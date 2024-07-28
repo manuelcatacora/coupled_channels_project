@@ -68,7 +68,7 @@ class InteractionEIM_CC(Interaction_CC):
                          coordinate_space_potential_deformed,
                          n_alpha_sph, n_alpha_def, delta_def, is_complex=is_complex)
             
-        self.r_mesh = r_array.copy()
+        self.r_mesh = r_array
         self.training_parameters = training_array
             ## generate a basis used to approximate the potential
             ## did the user specify training points?

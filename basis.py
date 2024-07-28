@@ -15,6 +15,8 @@ import math
 from rescaling_functions_cc import rescaling_function_factor, find_smallest_nonzero, Gamow_factor
 from utility_functions_cc import generate_second_derivative_matrix_9point
 
+from frescox_free_waves import frescox_rescale_free_waves
+
 class Basis_CC(Frescox_Inelastic_Wrapper):
     def __init__(self, 
                  mass_t: float,
@@ -64,10 +66,13 @@ class Basis_CC(Frescox_Inelastic_Wrapper):
         D2 = generate_second_derivative_matrix_9point(self.xgrid)
         wave_dict, grouped_keys_dict = self.frescox_run_inelastic_rescaled_waves(training_array_RBM)
         phi0_arr = self.free_waves()
+        ##########################
+        #free_dict, phi0_arr = frescox_rescale_free_waves(self.xgrid)
+        ############################
         run_num = len(training_array_RBM)
         
-        SVD_per_channel = {}
-        SVD_per_channel_d2 = {}
+        SVD_grouped_dict = {}
+        SVD_grouped_d2_dict = {}
         phi0_dict = {}
         phi0_d2_dict = {}
         singular_values = []
@@ -92,8 +97,8 @@ class Basis_CC(Frescox_Inelastic_Wrapper):
                     d2 = D2 @ basis
                     #d20 = D2 @ phi0
                     
-                    SVD_per_channel[subset_channels[j]] = basis
-                    SVD_per_channel_d2[subset_channels[j]] = d2
+                    SVD_grouped_dict[subset_channels[j]] = basis
+                    SVD_grouped_d2_dict[subset_channels[j]] = d2
                     
                     phi0_d2_dict[(l)] = D2 @ phi0_arr[l]
                     phi0_dict[(l)] = phi0_arr[l]
@@ -109,11 +114,11 @@ class Basis_CC(Frescox_Inelastic_Wrapper):
                     basis = U[:, :self.n_basis_RBM]
                     singular_values.append(S[:self.n_basis_RBM])
                     d2 = D2 @ basis
-                    SVD_per_channel[subset_channels[j]] = basis
-                    SVD_per_channel_d2[subset_channels[j]] = d2
+                    SVD_grouped_dict[subset_channels[j]] = basis
+                    SVD_grouped_d2_dict[subset_channels[j]] = d2
                     print(np.shape(basis),'in')
                     
-        return SVD_per_channel, SVD_per_channel_d2, phi0_dict, phi0_d2_dict, grouped_keys_dict, D2, singular_values
+        return SVD_grouped_dict, SVD_grouped_d2_dict, phi0_dict, phi0_d2_dict, grouped_keys_dict, D2, singular_values
                     
                     
                     

@@ -52,7 +52,7 @@ class Interaction_CC:
         takes as input the radial values and array of parameters and outputs the radial potential at the given "r" with alpha
         parameters.
         '''
-        #print(alpha,'a')
+        #-print(alpha,'a')
         vr_def = self.v_r_def(r, alpha, delta_def)
         
         return vr_def

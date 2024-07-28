@@ -1,0 +1,23 @@
+HEADER
+NAMELIST
+&FRESCO hcm=0.005 rmatch=40.0
+        jtmin=J_TOT_MIN jtmax=J_TOT_MAX absend= 0.01    
+	thmin=0.00 thmax=180.00 thinc=1.00
+        iter=0 ips=0.0 iblock=2 chans=1 smats=2  xstabl=1
+	wdisk=2 waves=3
+        elab(1)=E_LAB treneg=1 /
+
+ &PARTITION namep='projectile' massp=MASS_P zp=CHARGE_P
+            namet='target'   masst=MASS_T zt=CHARGE_T qval=0.0 nex=2  /
+ &STATES jp=S_PROJECTILE bandp=1 ep=0.0000 cpot=1 jt=I_GROUND bandt=1 et=E_GROUND /
+ &STATES copyp=1 		 cpot=1 jt=I_EXCITED bandt=1 et=E_EXCITED /
+ &partition /
+
+ &POT kp=1 ap=0.000 at=MASS_T rc=COULOMB_R  /
+ &POT kp=1 type=1  p1=XXXXX p2=XXXXX p3=XXXXX p4=XXXXX p5=XXXXX p6=XXXXX /
+ &POT kp=1 type=11          p2=REAL_DEFORM /
+ &POT kp=1 type=2  p1=XXXXX p2=XXXXX p3=XXXXX p4=XXXXX p5=XXXXX p6=XXXXX /
+ &POT kp=1 type=11          p2=IMAGINARY_DEFORM /
+ &pot /
+ &overlap /
+ &coupling /

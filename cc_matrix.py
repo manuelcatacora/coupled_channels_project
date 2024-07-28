@@ -44,7 +44,7 @@ def coupling_matrix_elements(I_i, l_i, j_i, I_f, l_f, j_f, s, J, Q):
     return coeff
 
 
-def CC_matrix(grouped_dict, spin, Q):
+def CC_matrix(grouped_dict, spin, Q, spin_t_gs, spin_t_ex):
     '''
     Given a specific "grouped" coupled channel set, projectile spin and coupling potential order,
     calculate the coupling matrix elements between all channels in the coupled channel set. 
@@ -56,10 +56,10 @@ def CC_matrix(grouped_dict, spin, Q):
         couplings = np.zeros((len(sub_channel), len(sub_channel)))
         
         for i in range(len(sub_channel)):
-            I_initial = 0 if sub_channel[i][1] == 1 else 2
+            I_initial = spin_t_gs if sub_channel[i][1] == 1 else spin_t_ex
             
             for j in range(len(sub_channel)):
-                I_final = 0 if sub_channel[j][1] == 1 else 2
+                I_final = spin_t_gs if sub_channel[j][1] == 1 else spin_t_ex
                 l_initial = sub_channel[i][2]
                 j_initial = sub_channel[i][3]
                 J_tot = sub_channel[i][4]

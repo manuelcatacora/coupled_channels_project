@@ -84,6 +84,7 @@ class Frescox_Inelastic_Wrapper:
             if 'S_PROJECTILE' in line and 'I_GROUND' in line:
                 line_temp = line.replace("S_PROJECTILE", str(self.spin_p), 1)
                 line_temp = line_temp.replace("I_GROUND", str(self.spin_t_gs), 1)
+                line_temp = line_temp.replace("E_GROUND", str(self.E_states[0]), 1)
                 content[idx] = line_temp
             if 'I_EXCITED' in line and 'E_EXCITED' in line:
                 line_temp = line.replace("I_EXCITED", str(self.spin_t_ex), 1)

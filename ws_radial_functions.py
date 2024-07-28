@@ -10,10 +10,10 @@ import numpy as np
 
 
 def woods_saxon_base_interaction(R, depth, radius, difuseness):
-    return -depth/(1+np.exp((R-radius)/difuseness))
+    return -depth/(1+np.exp((R-((12**(1/3))*radius))/difuseness))
 
 def der_woods_saxon_base_interaction(R, depth, radius, difuseness):
-    exponential = np.exp((R-radius)/difuseness)
+    exponential = np.exp((R-((12**(1/3))*radius))/difuseness)
     return -depth*exponential/(difuseness*(exponential+1)**2)
 
 
