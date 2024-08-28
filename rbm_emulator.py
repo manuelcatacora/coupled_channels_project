@@ -72,7 +72,7 @@ class Reduced_Basis_CC:
         self.max_l = J_tot_max + spin_p + max(spin_t_ex,spin_t_gs)
         a = CC_Constants(mass_t, mass_p, E_lab, E_states)
         self.k_i = a.k()
-        
+
     
 
 

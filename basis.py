@@ -53,7 +53,7 @@ class Basis_CC(Frescox_Inelastic_Wrapper):
         if xgrid_copy[0] == 0:
             xgrid_copy[0] = 1e-12
             
-        for l in range(self.l_max+1):
+        for l in range(self.l_max+5):
             wave = phi_free(self.momentum_ar[0]*xgrid_copy, l)
             scaled, factor = rescaling_function_factor(wave, l, xgrid_copy)
             free_waves_rescaled.append(scaled)
@@ -82,6 +82,11 @@ class Basis_CC(Frescox_Inelastic_Wrapper):
             
             for j in range(len(subset_channels)):
                 l = int(subset_channels[j][2])
+                j_mom = subset_channels[j][3]
+                
+                l_i = int(subset_channels[j][5])
+                j_mom_i = subset_channels[j][6]
+                
                 wave_set = []
                 
                 
@@ -105,7 +110,7 @@ class Basis_CC(Frescox_Inelastic_Wrapper):
 #                    phi0_dict[(l)] = phi0_arr[l]
 #                    print(np.shape(basis),'el')
                     
-                if j ==0 :
+                if l == l_i and j_mom == j_mom_i and int(subset_channels[j][1])== 1:
                     for i in range(run_num):
                         wave_scaled = wave_dict.get(subset_channels[j])[i]
                         wave_set.append(wave_scaled)

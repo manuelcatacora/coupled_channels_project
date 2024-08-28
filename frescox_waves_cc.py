@@ -350,39 +350,44 @@ class Frescox_Inelastic_Wrapper:
         grouped_channels = group_channels(keys)
 
         wave_scaled_dict = {}
-        #phase_shift_dict = {}
 
 
         for m in (grouped_channels):
             subset_channels = grouped_channels.get(m)
-            #print(subset_channels[0][2])
-    
-            for j in range(len(subset_channels)):
-                l = int(subset_channels[j][2])
-                wave_set = []
-                #phase_shift_set = []
-        
             
-                if j == 0:
+            factor_per_coupled_channel = []
+
+            #find and process the elastic channel
+            for j in range(len(subset_channels)):
+                
+                
+                #find the elastic channel
+                l = int(subset_channels[j][2])
+                j_mom = subset_channels[j][3]
+                
+                l_i = int(subset_channels[j][5])
+                j_mom_i = subset_channels[j][6]
+                
+                #wave_set = []
+                
+                if l == l_i and j_mom == j_mom_i and int(subset_channels[j][1])== 1.0:
                     for i in range(len(waves)):
                         wave_unscaled = waves[i].get(subset_channels[j])
                         wave_scaled, factor = rescaling_function_factor(wave_unscaled, l, self.xgrid)
-                        #print(factor,i,l)
-                        #phase_shift =  phase_shift_interp(u=wave_scaled,s=xgrid,ell=l,x0=x_phase_shift,dx=1e-6)
-                        wave_set.append(wave_scaled) 
-                        #phase_shift_set.append(phase_shift)
+                        factor_per_coupled_channel.append(factor)
+                        #wave_set.append(wave_scaled)  
+                    break
             
             
-                else:
-                    for i in range(len(waves)):
-                        wave_unscaled = waves[i].get(subset_channels[j])
-                        wave_scaled, factor = rescaling_function_factor(waves[i].get(subset_channels[0]), int(subset_channels[0][2]), self.xgrid)
-                        wave_ineslastic= np.array(wave_unscaled)*factor
-                        #phase_shift = phase_shift_interp_inelastic(u=wave_ineslastic, s=xgrid, ell=l, x0=x_renorm, x1=x_phase_shift, dx=1e-6)
-                        wave_set.append(wave_ineslastic)
-                        #phase_shift_set.append(phase_shift)
+            for j in range(len(subset_channels)):
+                wave_set = []
+                #print(factor_per_coupled_channel)
 
-                #phase_shift_dict[subset_channels[j]] = np.array(phase_shift_set)
+                for i in range(len(waves)):
+                    wave_unscaled = waves[i].get(subset_channels[j])
+                    wave_ineslastic= np.array(wave_unscaled)*factor_per_coupled_channel[i]
+                    wave_set.append(wave_ineslastic)
+
                 wave_scaled_dict[subset_channels[j]] = np.array(wave_set)
 
         

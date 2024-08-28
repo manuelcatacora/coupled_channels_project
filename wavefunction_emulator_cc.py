@@ -60,7 +60,7 @@ class Wavefunction_Emulator_CC(Basis_CC):
         self.momentum_ar = constants.k() 
         self.hbar2_2mu = constants.hbar2_reduced()
         
-        self.centrifugal_arr = [centrifugal(l, self.xgrid) for l in range(self.l_max+1)]
+        self.centrifugal_arr = [centrifugal(l, self.xgrid) for l in range(self.l_max+5)]
         self.E_gs, self.E_ex = constants.E_lab_to_COM()
         
         self.EIM_WS = InteractionEIM_CC(coordinate_space_potential_spherical, coordinate_space_potential_deformed, n_alpha_sph, n_alpha_def, delta_def, training_array_EIM, r_array, deformed_complex, is_complex, n_basis_sph_EIM, n_basis_def_EIM, match_points)
@@ -79,24 +79,28 @@ class Wavefunction_Emulator_CC(Basis_CC):
         '''
     
         '''
-    
         psiv_V_def_channel = []
-        l_0 = int(subsets_arr[0][2])
-        phi0 = self.phi0_dict.get(l_0)[self.drop:-self.drop]
-        d20 = self.phi0_d2_dict.get(l_0)[self.drop:-self.drop]
-        centri = (self.centrifugal_arr[l_0])[self.drop:-self.drop]
         
-        F_0 = -self.hbar2_2mu * d20 + self.hbar2_2mu*centri*phi0 - self.E_gs*phi0
-        psi1_F_0 = self.SVD_grouped_dict.get(subsets_arr[0])[self.drop:-self.drop].T @ F_0
+        for j in range(len(subsets_arr)):
+            
+            if  int(subsets_arr[j][2]) == int(subsets_arr[j][5]) and subsets_arr[j][3] == subsets_arr[j][6] and int(subsets_arr[j][1])== 1 :
+            
+                l_0 = int(subsets_arr[j][2])
+                phi0 = self.phi0_dict.get(l_0)[self.drop:-self.drop]
+                d20 = self.phi0_d2_dict.get(l_0)[self.drop:-self.drop]
+                centri = (self.centrifugal_arr[l_0])[self.drop:-self.drop]
         
-        F_V0 = self.EIM_basis_sph[self.drop:-self.drop].T*phi0
-        psi1_V_sph =  self.SVD_grouped_dict.get(subsets_arr[0])[self.drop:-self.drop].T @ F_V0.T
+                F_0 = -self.hbar2_2mu * d20 + self.hbar2_2mu*centri*phi0 - self.E_gs*phi0
+                psi1_F_0 = self.SVD_grouped_dict.get(subsets_arr[j])[self.drop:-self.drop].T @ F_0
         
-        for v in range(len(subsets_arr)):
-            F_V_v = self.EIM_basis_def[self.drop:-self.drop].T*phi0
-            psiv_V_def =  matrix_subset[v][0]*self.SVD_grouped_dict.get(subsets_arr[v])[self.drop:-self.drop].T @ F_V_v.T
-            psiv_V_def_channel.append(psiv_V_def)
-                
+                F_V0 = self.EIM_basis_sph[self.drop:-self.drop].T*phi0
+                psi1_V_sph =  self.SVD_grouped_dict.get(subsets_arr[j])[self.drop:-self.drop].T @ F_V0.T
+        
+                for v in range(len(subsets_arr)):
+                    F_V_v = self.EIM_basis_def[self.drop:-self.drop].T*phi0
+                    psiv_V_def =  matrix_subset[v][j]*self.SVD_grouped_dict.get(subsets_arr[v])[self.drop:-self.drop].T @ F_V_v.T
+                    psiv_V_def_channel.append(psiv_V_def)
+                    
         return psi1_F_0, psi1_V_sph, psiv_V_def_channel
     
     def psi_F0_psi_integrals(self,
@@ -171,7 +175,7 @@ class Wavefunction_Emulator_CC(Basis_CC):
                            v2 : np.array,
                            subsets_arr : np.array):
         '''
-          Given two vectors, in particular the concatenated Galerkin coefficients and the concatenated
+          Given two vectors, in particular the catenated Galerkin coefficients and the concatenated
         Galerkin bases, split them into len(subsets) vectors, the number of channels in a coupled channel set
         and do a dot product of each individual splitted vector to obtain the emulated solution. 
         For the elastic channel, add the free solutions. This function is used once for each coupled channel set, 
@@ -191,22 +195,23 @@ class Wavefunction_Emulator_CC(Basis_CC):
 
     
         for h in range(len(subsets_arr)):
-            l_scaling = int(subsets_arr[h][2])
-        
+            
+            if int(subsets_arr[h][2]) == int(subsets_arr[h][5]) and subsets_arr[h][3] == subsets_arr[h][6] and int(subsets_arr[h][1])== 1 :
+                l_scaling = int(subsets_arr[h][2])
+                
+                phi0_res = self.phi0_dict.get(l_scaling)[self.drop:-self.drop]
+                emu_split = np.sum(split_v1[h]*split_v2[h].T,axis=1)
+                emu = (emu_split + 1*phi0_res)
+
 #            if int(subsets_arr[h][1]) == 1:
 #                phi0_res = self.phi0_dict.get(l_scaling)[self.drop:-self.drop]
 #                emu_split = np.sum(split_v1[h]*split_v2[h].T,axis=1)
 #                #emu_scaled, factor = rescaling_function_factor(emu_split,l_scaling)
 #                emu = (emu_split + 1*phi0_res)
-            if h == 0:
-                phi0_res = self.phi0_dict.get(l_scaling)[self.drop:-self.drop]
-                emu_split = np.sum(split_v1[h]*split_v2[h].T,axis=1)
              #emu_scaled, factor = rescaling_function_factor(emu_split,l_scaling)
-                emu = (emu_split + 1*phi0_res)
              
             else:
                 emu_split = np.sum(split_v1[h]*split_v2[h].T,axis=1)
-                #emu_scaled, factor = rescaling_function_factor(np.sum(split_v1[0]*split_v2[0].T,axis=1),int(subsets[0][2]))
                 emu = (np.array(emu_split))
         
             emulated_channels[subsets_arr[h]] = emu
@@ -225,7 +230,7 @@ class Wavefunction_Emulator_CC(Basis_CC):
         solutions for each individual channel in the coupled channel set.
         '''
         r_array = self.xgrid[self.drop:-self.drop]
-        matrix_elements = CC_matrix(self.grouped_keys_dict, self.spin_p, self.spin_t_ex, self.spin_t_gs, self.spin_t_ex)
+        matrix_elements = CC_matrix(self.grouped_keys_dict, self.spin_p, max(self.spin_t_ex,self.spin_t_gs), self.spin_t_gs, self.spin_t_ex )
         #print(matrix_elements)
         integrated_subchannels_right = {}
         integrated_subchannels_left = {}
@@ -240,6 +245,7 @@ class Wavefunction_Emulator_CC(Basis_CC):
             
             subsets = self.grouped_keys_dict.get(m)
             matrix_subset = matrix_elements.get(m)
+            #print(matrix_subset)
             
             #dimensions (nbasis), (nbasis,EIM_basis), (nchannels, nbasis, EIM_basis)
             # pass coefficients, add the first two and nchannels=0, concatenate the rest
@@ -252,6 +258,8 @@ class Wavefunction_Emulator_CC(Basis_CC):
                 wave1 = self.SVD_grouped_dict.get(subsets[j])
                 wave1_d2 = self.SVD_grouped_d2_dict.get(subsets[j])
                 l = int(subsets[j][2])
+                ## the [j][1] in the subsets array labels the state of the target, we do not use these to determine the elastic channel
+                ## because there could be inelastic channels with the same target states. 
                 if int(subsets[j][1]) == 1:
                     energy = self.E_gs 
                 else:
@@ -302,7 +310,7 @@ class Wavefunction_Emulator_CC(Basis_CC):
             #print(sph_potential-exact_potential)
             
 
-            
+             
             for m in self.grouped_keys_dict:
                 free_solution_right = []
                 basis_operators_tot = []
@@ -332,7 +340,7 @@ class Wavefunction_Emulator_CC(Basis_CC):
                     #test2 = np.einsum('ilj, j -> il', self.psi_Vsph_psi_integrals(wave_test), sph_coeff)
                     #print(test1 - test2)
                     
-                    if j == 0:
+                    if int(subsets[j][2]) == int(subsets[j][5]) and subsets[j][3] == subsets[j][6] and int(subsets[j][1])== 1:
                         psiv_Vdef_phi0_coeff = np.einsum('ij,j->i', psiv_Vdef_phi0[j], def_coeff) + psi1_F_phi0 + psi1_Vsph_phi0_coeff
                     else:
                         psiv_Vdef_phi0_coeff = np.einsum('ij,j->i', psiv_Vdef_phi0[j], def_coeff)
@@ -369,21 +377,21 @@ class Wavefunction_Emulator_CC(Basis_CC):
         return total_channels, self.grouped_keys_dict
 
 
-                
+
                 
 
                     
+
                         
-                        
+
             
-            
+
+
+
     
 
-                
-    
-    
+
 
         
-        
-    
+
     

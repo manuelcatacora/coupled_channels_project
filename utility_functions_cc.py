@@ -23,6 +23,14 @@ def generate_second_derivative_matrix_9point(xgrid):
     
     return D2
 
+def generate_first_derivative_function(xgrid):
+    '''
+    for a given radial grid, return a first derivative function. 
+    '''
+    dx = xgrid[1]-xgrid[0]
+    d_dx = FinDiff(0, dx, 1)
+    return d_dx
+
 
 def centrifugal(l,x):
     '''with a radia grid x, generate an array containing the centrifugal potential'''
@@ -38,6 +46,18 @@ def centrifugal(l,x):
         cent = (l*(l+1))/(x**2)
     
     return cent
+
+
+def find_closest_array_value(value, array):
+    '''
+    for a user defined matching radius, find the radial array element 
+    closest to it and then return the array element and its index.
+    '''
+    # Find the index of the closest value
+    index = np.abs(array - value).argmin()
+    # Return the closest value from the array
+    return array[index], index
+
 
 
     
